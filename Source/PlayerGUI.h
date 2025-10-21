@@ -27,6 +27,10 @@ private:
     juce::TextButton stopButton{ "Stop" };
     juce::TextButton playButton{ "play" };
     juce::TextButton loopButton{ "loop" };
+    juce::TextButton goToEndButton{ "Go to end" }; 
+    juce::TextButton goToStartButton{ "Go to start" };
+
+    
 
 
     juce::Slider volumeSlider;
