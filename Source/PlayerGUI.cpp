@@ -3,7 +3,7 @@
 PlayerGUI::PlayerGUI() {
     // Add buttons
     for (auto* btn : { &loadButton , &restartButton , &stopButton , &playButton , &loopButton
-         , &goToStartButton , &goToEndButton})
+         , &goToStartButton , &goToEndButton , &skipForwardButton, &skipBackwardButton})
     {
         btn->addListener(this);
         addAndMakeVisible(btn);
@@ -101,6 +101,16 @@ void PlayerGUI::buttonClicked(juce::Button* button)
     {
         playerAudio.setPosition(playerAudio.getLength());
     }
+       else if (button == &skipForwardButton)
+   {
+       playerAudio.skipForward(10);
+   }
+   else if (button == &skipBackwardButton)
+   {
+       playerAudio.skipBackward(10);
+   }
+
+    
 
 
 }
