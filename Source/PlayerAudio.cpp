@@ -87,6 +87,26 @@ void PlayerAudio::looping(bool loop) {
     theloop = loop;
 }
 
+void PlayerAudio::skipForward(double seconds)
+{
+    double newPosition = transportSource.getCurrentPosition() + seconds;
+    if (newPosition > transportSource.getLengthInSeconds())
+    {
+        newPosition = transportSource.getLengthInSeconds();
+    }
+    transportSource.setPosition(newPosition);
+}
+
+void PlayerAudio::skipBackward( double seconds)
+{
+    double newPosition = transportSource.getCurrentPosition() - seconds;
+    if (newPosition <0)
+    {
+        newPosition = 0;
+    }
+    transportSource.setPosition(newPosition);
+}
+
 
 PlayerAudio::~PlayerAudio() {
 
