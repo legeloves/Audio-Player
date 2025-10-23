@@ -44,8 +44,8 @@ void PlayerGUI::resized()
     goToStartButton.setBounds(540, y, 100, 40);
     goToEndButton.setBounds(660, y, 100, 40);
 
-    /*prevButton.setBounds(340, y, 80, 40);
-    nextButton.setBounds(440, y, 80, 40);*/
+    skipForwardButton.setBounds(780, y, 80, 40);
+    skipBackwardButton.setBounds(870, y, 80, 40);
 
     volumeSlider.setBounds(20, 100, getWidth() - 40, 30);
 }
