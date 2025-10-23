@@ -19,6 +19,8 @@ public:
     double getPosition() const;
     double getLength() const;
     void looping(bool loop);
+    void skipForward( double seconds) ;
+    void skipBackward(double seconds);
 
 private:
 
@@ -27,6 +29,6 @@ private:
     juce::AudioTransportSource transportSource;
     bool theloop = false;
 
-    // JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerAudio)
+   
 };
 
