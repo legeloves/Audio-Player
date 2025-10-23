@@ -2,13 +2,22 @@
 
 PlayerGUI::PlayerGUI() {
     // Add buttons
+
+
+    juce::Colour Pink = juce::Colour(0xfff8b5d0);
+    juce::Colour Blue = juce::Colour(0xff87ceeb);
+
     for (auto* btn : { &loadButton , &restartButton , &stopButton , &playButton , &loopButton
-         , &goToStartButton , &goToEndButton , &skipForwardButton, &skipBackwardButton})
+         , &goToStartButton , &goToEndButton , &skipForwardButton, &skipBackwardButton })
     {
         btn->addListener(this);
         addAndMakeVisible(btn);
+
+        btn->setColour(juce::TextButton::buttonColourId, Pink);
+        btn->setColour(juce::TextButton::buttonOnColourId, Blue);
+        btn->setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+        btn->setColour(juce::TextButton::textColourOffId, juce::Colours::black);
     }
-    // Volume slider
     volumeSlider.setRange(0.0, 1.0, 0.01);
     volumeSlider.setValue(0.5);
     volumeSlider.addListener(this);
@@ -30,24 +39,25 @@ void PlayerGUI::releaseResources()
 }
 void PlayerGUI::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::darkgrey);
+    g.fillAll(juce::Colour(0xff1e90ff));
+
 }
 void PlayerGUI::resized()
 {
-    int y = 20;
+   
+    loadButton.setBounds(20, 20, 100, 40);      
+    playButton.setBounds(130, 20, 80, 40);      
+    stopButton.setBounds(220, 20, 80, 40);      
+    restartButton.setBounds(310, 20, 80, 40);   
+    loopButton.setBounds(400, 20, 80, 40);      
 
-    loadButton.setBounds(20, y, 100, 40);
-     playButton.setBounds(140, y, 80, 40);
-    restartButton.setBounds(240, y, 80, 40);
-    stopButton.setBounds(340, y, 80, 40);
-    loopButton.setBounds(440,y,80,40);
-    goToStartButton.setBounds(540, y, 100, 40);
-    goToEndButton.setBounds(660, y, 100, 40);
+        goToStartButton.setBounds(20, 70, 100, 40);   
+    skipBackwardButton.setBounds(130, 70, 80, 40); 
+    skipForwardButton.setBounds(220, 70, 80, 40);  
+    goToEndButton.setBounds(310, 70, 100, 40);     
 
-    skipForwardButton.setBounds(780, y, 80, 40);
-    skipBackwardButton.setBounds(870, y, 80, 40);
-
-    volumeSlider.setBounds(20, 100, getWidth() - 40, 30);
+    
+    volumeSlider.setBounds(20, 120, 460, 30);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -74,9 +84,9 @@ void PlayerGUI::buttonClicked(juce::Button* button)
                 }
             });
     }
-    else if (button == &playButton){
+    else if (button == &playButton) {
 
-          playerAudio.play();
+        playerAudio.play();
     }
     else if (button == &restartButton)
     {
@@ -88,9 +98,9 @@ void PlayerGUI::buttonClicked(juce::Button* button)
         playerAudio.stop();
 
     }
-    else if (button == &loopButton){
-           loopwork = !loopwork;
-           playerAudio.looping(loopwork);
+    else if (button == &loopButton) {
+        loopwork = !loopwork;
+        playerAudio.looping(loopwork);
 
     }
     else if (button == &goToStartButton)
@@ -101,17 +111,14 @@ void PlayerGUI::buttonClicked(juce::Button* button)
     {
         playerAudio.setPosition(playerAudio.getLength());
     }
-       else if (button == &skipForwardButton)
-   {
-       playerAudio.skipForward(10);
-   }
-   else if (button == &skipBackwardButton)
-   {
-       playerAudio.skipBackward(10);
-   }
-
-    
-
+    else if (button == &skipForwardButton)
+    {
+        playerAudio.skipForward(10);
+    }
+    else if (button == &skipBackwardButton)
+    {
+        playerAudio.skipBackward(10);
+    }
 
 }
 void PlayerGUI::sliderValueChanged(juce::Slider* slider)
@@ -124,5 +131,4 @@ void PlayerGUI::sliderValueChanged(juce::Slider* slider)
 
 
 PlayerGUI::~PlayerGUI() {}
-
 
