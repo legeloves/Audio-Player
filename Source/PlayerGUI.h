@@ -29,6 +29,8 @@ private:
     juce::TextButton loopButton{ "loop" };
     juce::TextButton goToEndButton{ "Go to end" }; 
     juce::TextButton goToStartButton{ "Go to start" };
+    juce::TextButton skipBackwardButton{ ">>" };
+    juce::TextButton skipForwardButton{ "<<" };
 
     
 
