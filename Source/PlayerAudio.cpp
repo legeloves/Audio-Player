@@ -1,77 +1,113 @@
-#include "AudioPlayer.h"
+#include "PlayerAudio.h"
 
-AudioPlayer::AudioPlayer()
-{
+PlayerAudio::PlayerAudio() {
     formatManager.registerBasicFormats();
 }
 
-AudioPlayer::~AudioPlayer() {}
 
-void AudioPlayer::loadURL(const juce::URL& audioURL)
+
+void PlayerAudio::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
-    auto* reader = formatManager.createReaderFor(audioURL.createInputStream(false));
-    if (reader != nullptr)
-    {
-        std::unique_ptr<juce::AudioFormatReaderSource> newSource (new juce::AudioFormatReaderSource(reader, true));
-        transportSource.setSource(newSource.get(), 0, nullptr, reader->sampleRate);
-        readerSource.reset(newSource.release());
-    }
+    transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
-void AudioPlayer::play()
+void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
+    transportSource.getNextAudioBlock(bufferToFill);
+
+    double currentpothision = transportSource.getCurrentPosition();
+    double length  = transportSource.getLengthInSeconds();
+
+    if (currentpothision >= length - 0.1) {
+        if (theloop == true) {
+            transportSource.setPosition(0.0);
+            transportSource.start();
+        }
+        else
+            transportSource.stop();
+
+    }
+
+}
+
+void PlayerAudio::releaseResources()
+{
+    transportSource.releaseResources();
+}
+
+bool PlayerAudio::loadFile(const juce::File &file) {
+    if (file.existsAsFile())
+    {
+        if (auto* reader = formatManager.createReaderFor(file))
+        {
+            // 🔑 Disconnect old source first
+            transportSource.stop();
+            transportSource.setSource(nullptr);
+            readerSource.reset();
+
+            // Create new reader source
+            readerSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
+
+            // Attach safely
+            transportSource.setSource(readerSource.get(),
+                0,
+                nullptr,
+                reader->sampleRate);
+            transportSource.start();
+        }
+    }
+    return true;
+}
+
+void PlayerAudio::play() {
     transportSource.start();
 }
 
-void AudioPlayer::stop()
-{
+void PlayerAudio::stop() {
     transportSource.stop();
 }
 
-void AudioPlayer::restart()
-{
-    setPosition(0.0);
-    play();
-}
-
-void AudioPlayer::setPosition(double posInSeconds)
-{
-    transportSource.setPosition(posInSeconds);
-}
-
-double AudioPlayer::getPosition() const
-{
-    return transportSource.getCurrentPosition();
-}
-
-double AudioPlayer::getLength() const
-{
-    return transportSource.getLengthInSeconds();
-}
-
-void AudioPlayer::skipForward(double seconds)
-{
-    setPosition(getPosition() + seconds);
-}
-
-void AudioPlayer::skipBackward(double seconds)
-{
-    setPosition(getPosition() - seconds);
-}
-
-void AudioPlayer::setGain(double gain)
-{
+void PlayerAudio::setGain(float gain) {
     transportSource.setGain(gain);
 }
 
-void AudioPlayer::setSpeed(double ratio)
-{
-    resampleSource.setResamplingRatio(ratio);
+void PlayerAudio::setPosition(double pos) {
+    transportSource.setPosition(pos);
 }
 
-void AudioPlayer::looping(bool shouldLoop)
+double PlayerAudio::getPosition() const {
+    return transportSource.getCurrentPosition();
+}
+
+double PlayerAudio::getLength() const {
+    return transportSource.getLengthInSeconds();
+}
+
+void PlayerAudio::looping(bool loop) {
+    theloop = loop;
+}
+
+void PlayerAudio::skipForward(double seconds)
 {
-    isLooping = shouldLoop;
-    if (readerSource != nullptr)
-        readerSource->setLooping(shouldLoop);
+    double newPosition = transportSource.getCurrentPosition() + seconds;
+    if (newPosition > transportSource.getLengthInSeconds())
+    {
+        newPosition = transportSource.getLengthInSeconds();
+    }
+    transportSource.setPosition(newPosition);
+}
+
+void PlayerAudio::skipBackward( double seconds)
+{
+    double newPosition = transportSource.getCurrentPosition() - seconds;
+    if (newPosition <0)
+    {
+        newPosition = 0;
+    }
+    transportSource.setPosition(newPosition);
+}
+
+
+PlayerAudio::~PlayerAudio() {
+
 }

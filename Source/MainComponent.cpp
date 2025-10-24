@@ -2,18 +2,38 @@
 
 MainComponent::MainComponent()
 {
-    addAndMakeVisible(playerGUI);
-    setSize(1200, 600);
+    addAndMakeVisible(player1);
+    setSize(600, 250);
+    setAudioChannels(0, 2);
 }
 
-MainComponent::~MainComponent() {}
-
-void MainComponent::paint(juce::Graphics& g)
+MainComponent::~MainComponent()
 {
-    g.fillAll(juce::Colours::black);
+    shutdownAudio();
 }
 
-void MainComponent::resized()
+void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
-    playerGUI.setBounds(getLocalBounds());
+    player1.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
+
+void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
+{
+    player1.getNextAudioBlock(bufferToFill);
+}
+
+void MainComponent::releaseResources()
+{
+    player1.releaseResources();
+}
+void MainComponent::resized() {
+    player1.setBounds(getBounds());
+}
+
+
+
+
+
+
+
+

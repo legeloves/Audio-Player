@@ -1,29 +1,35 @@
-#pragma once
+#pragma once							// PlayerAudio.h
 #include <JuceHeader.h>
 
-class AudioPlayer
+class PlayerAudio
 {
 public:
-    AudioPlayer();
-    ~AudioPlayer();
+    PlayerAudio();
+    ~PlayerAudio();
 
-    void loadURL(const juce::URL& audioURL);
+    void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
+    void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
+    void releaseResources();
+
+    bool loadFile(const juce::File& file);
     void play();
     void stop();
-    void restart();
-    void setPosition(double posInSeconds);
+    void setGain(float gain);
+    void setPosition(double pos);
     double getPosition() const;
     double getLength() const;
-    void skipForward(double seconds);
+    void looping(bool loop);
+    void skipForward( double seconds) ;
     void skipBackward(double seconds);
-    void setGain(double gain);
-    void setSpeed(double ratio);
-    void looping(bool shouldLoop);
+
 
 private:
+
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
     juce::AudioTransportSource transportSource;
-    juce::ResamplingAudioSource resampleSource { &transportSource, false, 2 };
-    bool isLooping = false;
+    bool theloop = false;
+
+   
 };
+
