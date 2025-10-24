@@ -1,19 +1,18 @@
-#pragma once						// MainComponent.h
+#pragma once
 #include <JuceHeader.h>
 #include "PlayerGUI.h"
 
-class MainComponent : public juce::AudioAppComponent
+class MainComponent : public juce::Component
 {
 public:
     MainComponent();
     ~MainComponent() override;
 
-    void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
-    void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
-    void releaseResources() override;
+    void paint(juce::Graphics&) override;
     void resized() override;
 
 private:
-    PlayerGUI player1;
+    PlayerGUI playerGUI;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

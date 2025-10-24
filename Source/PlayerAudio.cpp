@@ -1,113 +1,77 @@
-#include "PlayerAudio.h"
+#include "AudioPlayer.h"
 
-PlayerAudio::PlayerAudio() {
+AudioPlayer::AudioPlayer()
+{
     formatManager.registerBasicFormats();
 }
 
+AudioPlayer::~AudioPlayer() {}
 
-
-void PlayerAudio::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
+void AudioPlayer::loadURL(const juce::URL& audioURL)
 {
-    transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
-}
-
-void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
-{
-    transportSource.getNextAudioBlock(bufferToFill);
-
-    double currentpothision = transportSource.getCurrentPosition();
-    double length  = transportSource.getLengthInSeconds();
-
-    if (currentpothision >= length - 0.1) {
-        if (theloop == true) {
-            transportSource.setPosition(0.0);
-            transportSource.start();
-        }
-        else
-            transportSource.stop();
-
-    }
-
-}
-
-void PlayerAudio::releaseResources()
-{
-    transportSource.releaseResources();
-}
-
-bool PlayerAudio::loadFile(const juce::File &file) {
-    if (file.existsAsFile())
+    auto* reader = formatManager.createReaderFor(audioURL.createInputStream(false));
+    if (reader != nullptr)
     {
-        if (auto* reader = formatManager.createReaderFor(file))
-        {
-            // 🔑 Disconnect old source first
-            transportSource.stop();
-            transportSource.setSource(nullptr);
-            readerSource.reset();
-
-            // Create new reader source
-            readerSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
-
-            // Attach safely
-            transportSource.setSource(readerSource.get(),
-                0,
-                nullptr,
-                reader->sampleRate);
-            transportSource.start();
-        }
+        std::unique_ptr<juce::AudioFormatReaderSource> newSource (new juce::AudioFormatReaderSource(reader, true));
+        transportSource.setSource(newSource.get(), 0, nullptr, reader->sampleRate);
+        readerSource.reset(newSource.release());
     }
-    return true;
 }
 
-void PlayerAudio::play() {
+void AudioPlayer::play()
+{
     transportSource.start();
 }
 
-void PlayerAudio::stop() {
+void AudioPlayer::stop()
+{
     transportSource.stop();
 }
 
-void PlayerAudio::setGain(float gain) {
-    transportSource.setGain(gain);
+void AudioPlayer::restart()
+{
+    setPosition(0.0);
+    play();
 }
 
-void PlayerAudio::setPosition(double pos) {
-    transportSource.setPosition(pos);
+void AudioPlayer::setPosition(double posInSeconds)
+{
+    transportSource.setPosition(posInSeconds);
 }
 
-double PlayerAudio::getPosition() const {
+double AudioPlayer::getPosition() const
+{
     return transportSource.getCurrentPosition();
 }
 
-double PlayerAudio::getLength() const {
+double AudioPlayer::getLength() const
+{
     return transportSource.getLengthInSeconds();
 }
 
-void PlayerAudio::looping(bool loop) {
-    theloop = loop;
-}
-
-void PlayerAudio::skipForward(double seconds)
+void AudioPlayer::skipForward(double seconds)
 {
-    double newPosition = transportSource.getCurrentPosition() + seconds;
-    if (newPosition > transportSource.getLengthInSeconds())
-    {
-        newPosition = transportSource.getLengthInSeconds();
-    }
-    transportSource.setPosition(newPosition);
+    setPosition(getPosition() + seconds);
 }
 
-void PlayerAudio::skipBackward( double seconds)
+void AudioPlayer::skipBackward(double seconds)
 {
-    double newPosition = transportSource.getCurrentPosition() - seconds;
-    if (newPosition <0)
-    {
-        newPosition = 0;
-    }
-    transportSource.setPosition(newPosition);
+    setPosition(getPosition() - seconds);
 }
 
+void AudioPlayer::setGain(double gain)
+{
+    transportSource.setGain(gain);
+}
 
-PlayerAudio::~PlayerAudio() {
+void AudioPlayer::setSpeed(double ratio)
+{
+    resampleSource.setResamplingRatio(ratio);
+}
 
+void AudioPlayer::looping(bool shouldLoop)
+{
+    isLooping = shouldLoop;
+    if (readerSource != nullptr)
+        readerSource->setLooping(shouldLoop);
 }
