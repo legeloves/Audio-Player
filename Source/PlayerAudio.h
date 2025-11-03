@@ -1,8 +1,29 @@
 #pragma once							// PlayerAudio.h
 #include <JuceHeader.h>
+#include<vector>
 
 class PlayerAudio
 {
+protected:
+    struct track {
+        juce::String Title;
+        juce::String Artist;
+        juce::String FileName;
+        int hour = 0;
+        int min = 0;
+        int sec = 0;
+    };
+
+private:
+
+    juce::AudioFormatManager formatManager;
+    std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
+    juce::AudioTransportSource transportSource;
+    bool theloop = false;
+
+  
+
+
 public:
     PlayerAudio();
     ~PlayerAudio();
@@ -23,13 +44,11 @@ public:
     void skipBackward(double seconds);
 
 
-private:
-
-    juce::AudioFormatManager formatManager;
-    std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
-    juce::AudioTransportSource transportSource;
-    bool theloop = false;
-
-   
+  
+    track currentTrack;
+    track getTrackInfo() const
+    {
+        return currentTrack;
+    };
 };
 

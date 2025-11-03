@@ -1,6 +1,8 @@
 #pragma once						// PlayerGUI.h
 #include <JuceHeader.h>
 #include "PlayerAudio.h"
+#include "Playlist.h" // الـ PlaylistAudio
+
 
 class PlayerGUI : public juce::Component,
     public juce::Button::Listener,
@@ -18,6 +20,9 @@ public:
     void releaseResources();
 
 private:
+    PlaylistAudio playlistAudio; //playlist 
+
+
     PlayerAudio playerAudio;
     bool loopwork = false;
     bool isMuted = false;
@@ -35,13 +40,19 @@ private:
     juce::TextButton skipForwardButton{ ">>" };
     juce::TextButton muteButton { "Mute" };
     juce::TextButton unmuteButton { "Unmute" };
+    juce::TextButton nextButton{ "Next" };
+    juce::TextButton previousButton{ "Previous" };
+
 
     
+    juce::Label infoLabel;
 
 
     juce::Slider volumeSlider;
 
     std::unique_ptr<juce::FileChooser> fileChooser;
+
+    void updateTrackInfo();//playlist-> update label
 
     // Event handlers
     void buttonClicked(juce::Button* button) override;

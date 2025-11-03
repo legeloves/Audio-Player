@@ -1,9 +1,10 @@
 #include "PlayerGUI.h"
-
+#include "playlist.h"
+//playerGUI.cpp
 PlayerGUI::PlayerGUI() {
     // Add buttons
     for (auto* btn : { &loadButton , &restartButton , &stopButton , &playButton , &loopButton
-         , &goToStartButton , &goToEndButton , &skipForwardButton, &skipBackwardButton ,&muteButton, &unmuteButton})
+         , &goToStartButton , &goToEndButton , &skipForwardButton, &skipBackwardButton ,&muteButton, &unmuteButton, &nextButton , &previousButton})
     {
         btn->addListener(this);
         addAndMakeVisible(btn);
@@ -13,20 +14,28 @@ PlayerGUI::PlayerGUI() {
     volumeSlider.setValue(0.5);
     volumeSlider.addListener(this);
     addAndMakeVisible(volumeSlider);
+
+    //lableInfo
+    addAndMakeVisible(infoLabel);
+    infoLabel.setText("No track loaded", juce::dontSendNotification);
+    infoLabel.setJustificationType(juce::Justification::centred);
+    infoLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue);
+
+
 }
 void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
-    playerAudio.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    playlistAudio.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void PlayerGUI::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    playerAudio.getNextAudioBlock(bufferToFill);
+    playlistAudio.getNextAudioBlock(bufferToFill);
 }
 
 void PlayerGUI::releaseResources()
 {
-    playerAudio.releaseResources();
+    playlistAudio.releaseResources();
 }
 void PlayerGUI::paint(juce::Graphics& g)
 {
@@ -45,11 +54,19 @@ void PlayerGUI::resized()
     goToEndButton.setBounds(660, y, 100, 40);
 
     skipForwardButton.setBounds(780, y, 80, 40);
-    skipBackwardButton.setBounds(870, y, 80, 40);
-    muteButton.setBounds(970, y, 80, 40);
-    unmuteButton.setBounds(1060, y, 80, 40);
+    skipBackwardButton.setBounds(900, y, 80, 40);
+    muteButton.setBounds(1020, y, 80, 40);
+    unmuteButton.setBounds(1140, y, 80, 40);
+    nextButton.setBounds(1260,y,80,40);
+    previousButton.setBounds(1380,y,80,40);
+
+
+
 
     volumeSlider.setBounds(20, 100, getWidth() - 40, 30);
+
+    infoLabel.setBounds(getWidth()/2-70 ,140, 150, 150);
+
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -72,51 +89,82 @@ void PlayerGUI::buttonClicked(juce::Button* button)
                 auto file = fc.getResult();
                 if (file.existsAsFile())
                 {
-                    playerAudio.loadFile(file);
+                    playlistAudio.loadFile(file);
+
+                    //add to play list , update
+                    playlistAudio.addToPlaylist(file);
+                    updateTrackInfo();
+
+
+                    auto info = playlistAudio.getTrackInfo();
+                    juce::String text =  info.Artist.isNotEmpty() ? info.Artist + " - " + info.Title : info.Title;
+
+
+                    if (info.hour > 0) {
+                        text=text +  " | "
+                            +juce::String(info.hour) + " : " 
+                            + juce::String(info.min) + " : " 
+                            + juce::String(info.sec) + " hours";
+                    }
+                    else if (info.min > 0) {
+                        text = text + " | "
+                            + juce::String(info.min) + " : "
+                            + juce::String(info.sec) + " min";
+                    }
+                    else {
+                        text = text + " | "
+                            + juce::String(info.sec) + " sec";
+
+                    }
+                    
+                    infoLabel.setText(text, juce::dontSendNotification);
+
+
+
                 }
             });
     }
     else if (button == &playButton){
 
-          playerAudio.play();
+        playlistAudio.play();
     }
     else if (button == &restartButton)
     {
-        playerAudio.setPosition(0.0);
-        playerAudio.play();
+        playlistAudio.setPosition(0.0);
+        playlistAudio.play();
     }
     else if (button == &stopButton)
     {
-        playerAudio.stop();
+        playlistAudio.stop();
 
     }
     else if (button == &loopButton){
            loopwork = !loopwork;
-           playerAudio.looping(loopwork);
+           playlistAudio.looping(loopwork);
 
     }
     else if (button == &goToStartButton)
     {
-        playerAudio.setPosition(0.0);
+        playlistAudio.setPosition(0.0);
     }
     else if (button == &goToEndButton)
     {
-        playerAudio.setPosition(playerAudio.getLength());
+        playlistAudio.setPosition(playerAudio.getLength());
     }
     else if (button == &skipForwardButton)
    {
-       playerAudio.skipForward(10);
+        playlistAudio.skipForward(10);
    }
     else if (button == &skipBackwardButton)
    {
-       playerAudio.skipBackward(10);
+        playlistAudio.skipBackward(10);
    }
     else if (button == &muteButton)
     {
         if (!isMuted)
         {
             lastVolume = volumeSlider.getValue();
-            playerAudio.setGain(0.0);
+            playlistAudio.setGain(0.0);
             isMuted = true;
         }
     }
@@ -124,10 +172,26 @@ void PlayerGUI::buttonClicked(juce::Button* button)
     {
         if (isMuted)
         {
-            playerAudio.setGain(lastVolume);
+            playlistAudio.setGain(lastVolume);
             volumeSlider.setValue(lastVolume, juce::dontSendNotification);
             isMuted = false;
         }
+    }
+
+
+
+    else if (button == &nextButton) {
+        playlistAudio.nextTrack();
+  
+        updateTrackInfo();
+    }
+
+
+    else if(button == &previousButton)
+    {
+        playlistAudio.previousTrack();
+   
+        updateTrackInfo();
     }
 
     
@@ -138,6 +202,25 @@ void PlayerGUI::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &volumeSlider)
         playerAudio.setGain((float)slider->getValue());
+}
+
+
+//update
+void PlayerGUI::updateTrackInfo() {
+    auto info = playlistAudio.getCurrentTrack();
+    juce::String text = info.Artist.isNotEmpty() ? info.Artist + " - " + info.Title : info.Title;
+
+    if (info.hour > 0) {
+        text += " | " + juce::String(info.hour) + " : " + juce::String(info.min) + " : " + juce::String(info.sec) + " hours";
+    }
+    else if (info.min > 0) {
+        text += " | " + juce::String(info.min) + " : " + juce::String(info.sec) + " min";
+    }
+    else {
+        text += " | " + juce::String(info.sec) + " sec";
+    }
+
+    infoLabel.setText(text, juce::dontSendNotification);
 }
 
 
