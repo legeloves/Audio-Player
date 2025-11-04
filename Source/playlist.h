@@ -26,12 +26,9 @@ public:
 
     void previousTrack();
 
-
     int getCurrentTrackIndex() const;
 
-
     const std::vector<track>& getPlaylist() const { return playlist; }
-
 
     const track& getCurrentTrack() const { return playlist[currentTrackIndex]; }
 

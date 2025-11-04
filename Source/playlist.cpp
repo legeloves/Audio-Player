@@ -20,13 +20,13 @@ void PlaylistAudio::addToPlaylist(const juce::File& file)
         if (currentTrackIndex == -1)
             currentTrackIndex = 0;
     }
-}
+} 
 
 void PlaylistAudio::playTrack(int index)
 {
     if (index < 0 || index >= playlist.size()) return;
     currentTrackIndex = index;
-    loadFile(juce::File(playlist[index].FileName));
+    loadFile(juce::File(playlist[index].FileName)); 
     play();
 }
 
