@@ -1,6 +1,6 @@
 #pragma once							// PlayerAudio.h
 #include <JuceHeader.h>
-#include<vector>
+#include <vector>
 
 class PlayerAudio
 {
@@ -15,14 +15,10 @@ protected:
     };
 
 private:
-
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
     juce::AudioTransportSource transportSource;
     bool theloop = false;
-
-  
-
 
 public:
     PlayerAudio();
@@ -40,15 +36,12 @@ public:
     double getPosition() const;
     double getLength() const;
     void looping(bool loop);
-    void skipForward( double seconds) ;
+    void skipForward(double seconds);
     void skipBackward(double seconds);
 
-
-  
     track currentTrack;
     track getTrackInfo() const
     {
         return currentTrack;
     };
 };
-
