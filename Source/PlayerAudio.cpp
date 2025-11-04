@@ -1,8 +1,7 @@
 #include "PlayerAudio.h"
-
-// PlayerAudio.cpp
+//PlayerAudio.cpp
 PlayerAudio::PlayerAudio() {
-    formatManager.registerBasicFormats();
+formatManager.registerBasicFormats();
 }
 
 void PlayerAudio::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
@@ -14,17 +13,19 @@ void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferTo
 {
     transportSource.getNextAudioBlock(bufferToFill);
 
-    double currentPosition = transportSource.getCurrentPosition();
-    double length = transportSource.getLengthInSeconds();
+    double currentpothision = transportSource.getCurrentPosition();
+    double length  = transportSource.getLengthInSeconds();
 
-    if (currentPosition >= length - 0.1) {
+    if (currentpothision >= length - 0.1) {
         if (theloop == true) {
             transportSource.setPosition(0.0);
             transportSource.start();
         }
         else
             transportSource.stop();
+
     }
+
 }
 
 void PlayerAudio::releaseResources()
@@ -32,18 +33,19 @@ void PlayerAudio::releaseResources()
     transportSource.releaseResources();
 }
 
-bool PlayerAudio::loadFile(const juce::File& file) {
+bool PlayerAudio::loadFile(const juce::File &file) {
     if (file.existsAsFile())
     {
         if (auto* reader = formatManager.createReaderFor(file))
         {
-            // Disconnect old source first
+            //  Disconnect old source first
             transportSource.stop();
             transportSource.setSource(nullptr);
             readerSource.reset();
 
             // Create new reader source
             readerSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
+
 
             // Attach safely
             transportSource.setSource(readerSource.get(),
@@ -52,20 +54,28 @@ bool PlayerAudio::loadFile(const juce::File& file) {
                 reader->sampleRate);
             transportSource.start();
 
+
             // ------- Fill track info -------
             currentTrack.FileName = file.getFileName();
 
+
             const int time = reader->lengthInSamples / reader->sampleRate;
-            currentTrack.hour = time / 3600;
-            currentTrack.min = (time - currentTrack.hour * 3600) / 60;
-            currentTrack.sec = time - currentTrack.hour * 3600 - currentTrack.min * 60;
 
-            auto titleTag = reader->metadataValues["TITLE"];
-            auto artistTag = reader->metadataValues["ARTIST"];
+                currentTrack.hour = time / 3600;
+                currentTrack.min = (time - currentTrack.hour * 3600) / 60;
+                currentTrack.sec = time - currentTrack.hour * 3600 - currentTrack.min * 60;
 
-            currentTrack.Title = titleTag.isNotEmpty() ? titleTag : file.getFileNameWithoutExtension();
-            currentTrack.Artist = artistTag.isNotEmpty() ? artistTag : "";
+
+                auto titleTag = reader->metadataValues["TITLE"];
+                auto artistTag = reader->metadataValues["ARTIST"];
+
+                currentTrack.Title = titleTag.isNotEmpty() ? titleTag : file.getFileNameWithoutExtension();
+                currentTrack.Artist = artistTag.isNotEmpty() ? artistTag : "";
+
             // --------------------------------
+
+
+
         }
     }
     return true;
@@ -103,38 +113,23 @@ void PlayerAudio::skipForward(double seconds)
 {
     double newPosition = transportSource.getCurrentPosition() + seconds;
     if (newPosition > transportSource.getLengthInSeconds())
+    {
         newPosition = transportSource.getLengthInSeconds();
-
+    }
     transportSource.setPosition(newPosition);
 }
 
-void PlayerAudio::skipBackward(double seconds)
+void PlayerAudio::skipBackward( double seconds)
 {
     double newPosition = transportSource.getCurrentPosition() - seconds;
-    if (newPosition < 0)
+    if (newPosition <0)
+    {
         newPosition = 0;
-
+    }
     transportSource.setPosition(newPosition);
 }
 
-//  New Task: Extra utility methods for PlayerAudio
-juce::File PlayerAudio::getCurrentFile() const
-{
-    if (readerSource && readerSource->getAudioFormatReader() != nullptr)
-        return readerSource->getAudioFormatReader()->getFile();
-    return juce::File();
-}
-
-void PlayerAudio::pause()
-{
-    if (transportSource.isPlaying())
-        transportSource.stop();
-}
-
-bool PlayerAudio::isPlaying() const
-{
-    return transportSource.isPlaying();
-}
 
 PlayerAudio::~PlayerAudio() {
+
 }
