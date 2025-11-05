@@ -1,5 +1,5 @@
 #include "PlayerGUI.h"
-#include "PlaylistAudio.h"
+#include "Playlist.h"
 
 PlayerGUI::PlayerGUI() {
     // Add buttons
@@ -35,20 +35,12 @@ PlayerGUI::PlayerGUI() {
     addAndMakeVisible(timeSlider);
 
 
-
     infoLabel.setText("No track loaded", juce::dontSendNotification);
     infoLabel.setJustificationType(juce::Justification::centred);
     infoLabel.setColour(juce::Label::textColourId, juce::Colours::black);
     infoLabel.setColour(juce::Label::backgroundColourId, juce::Colours::transparentBlack);
     infoLabel.setFont(juce::Font(16.0f, juce::Font::bold));
     addAndMakeVisible(infoLabel);
-
-
-
-
-
-
-
 
 
     currentTimeLabel.setText("0:00", juce::dontSendNotification);
@@ -65,10 +57,6 @@ PlayerGUI::PlayerGUI() {
 
     startTimer(50);
 
-
-
-
-
     volumeSlider.setRange(0.0, 1.0, 0.01);
     volumeSlider.setValue(0.5);
     volumeSlider.addListener(this);
@@ -78,15 +66,7 @@ PlayerGUI::PlayerGUI() {
     volumeSlider.setColour(juce::Slider::backgroundColourId, juce::Colours::lightgrey);
     addAndMakeVisible(volumeSlider);
 
-
-
-
 }
-
-
-
-
-
 void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
     playlistAudio.prepareToPlay(samplesPerBlockExpected, sampleRate);
@@ -126,7 +106,8 @@ void PlayerGUI::resized()
     stopButton.setBounds(center - 160, height - 140, 60, 30);
     restartButton.setBounds(center - 90, height - 140, 60, 30);
     loopButton.setBounds(center + 30, height - 140, 60, 30);
-    goToStartButton.setBounds(center + 100, height - 140, 80, 30);
+    goToStartButton.setBounds(center - 250, height - 140, 80, 30);
+    goToEndButton.setBounds(center + 100, height - 140, 80, 30);
 
  
     loadButton.setBounds(20, 20, 100, 30);
@@ -230,6 +211,11 @@ void PlayerGUI::buttonClicked(juce::Button* button)
         loopwork = !loopwork;
         playlistAudio.looping(loopwork);
 
+        if (loopwork) {
+            loopButton.setButtonText("loop ON");
+        }
+        else
+            loopButton.setButtonText("loop OF");
     }
     else if (button == &goToStartButton)
     {

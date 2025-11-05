@@ -15,5 +15,7 @@ public:
 
 private:
     PlayerGUI player1;
+    PlayerGUI player2;
+    juce::MixerAudioSource mixer;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

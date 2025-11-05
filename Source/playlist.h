@@ -32,6 +32,7 @@ public:
 
     const track& getCurrentTrack() const { return playlist[currentTrackIndex]; }
 
+
 private:
     std::vector<track> playlist;
     int currentTrackIndex = -1;

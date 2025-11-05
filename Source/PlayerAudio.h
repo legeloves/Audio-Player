@@ -1,7 +1,7 @@
 #pragma once							// PlayerAudio.h
 #include <JuceHeader.h>
 
-class PlayerAudio
+class PlayerAudio : public juce::AudioSource
 {
 protected:
     struct track {
@@ -14,11 +14,11 @@ protected:
     };
 public:
     PlayerAudio();
-    ~PlayerAudio();
+    ~PlayerAudio() override;
 
-    void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
-    void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
-    void releaseResources();
+    void prepareToPlay(int samplesPerBlockExpected, double sampleRate)override;
+    void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)override;
+    void releaseResources()override;
 
     bool loadFile(const juce::File& file);
     void play();

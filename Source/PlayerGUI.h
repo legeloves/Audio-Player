@@ -1,7 +1,7 @@
 #pragma once						// PlayerGUI.h
 #include <JuceHeader.h>
 #include "PlayerAudio.h"
-#include "PlaylistAudio.h"
+#include "Playlist.h"
 
 
 
@@ -13,13 +13,14 @@ class PlayerGUI : public juce::Component,
 public:
     PlayerGUI();
     ~PlayerGUI() override;
+    PlaylistAudio& getAudioSource() { return playlistAudio; }
 
     void resized() override;
     void paint(juce::Graphics& g) override;
 
 
     void paintOverChildren(juce::Graphics& g) override;
-    void play();
+
 
     std::unique_ptr<juce::FileChooser> fileChooser;
     juce::String formatTime(double seconds);
@@ -34,11 +35,15 @@ public:
     void releaseResources();
 
 
+
+
     bool loadFile(const juce::File& file) { return playlistAudio.loadFile(file); }
     void setPosition(double pos) { playlistAudio.setPosition(pos); }
     juce::File getCurrentFile() { return playlistAudio.getCurrentFile(); }
     double getPosition() const { return playlistAudio.getPosition(); }
     void timerCallback() override;
+
+
 
 private:
     PlaylistAudio playlistAudio;

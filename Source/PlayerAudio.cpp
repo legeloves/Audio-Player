@@ -56,7 +56,10 @@ bool PlayerAudio::loadFile(const juce::File& file) {
                 0,
                 nullptr,
                 reader->sampleRate);
+
+            transportSource.setPosition(0.0);
             transportSource.start();
+
             currentTrack.FileName = file.getFileName();
 
 
