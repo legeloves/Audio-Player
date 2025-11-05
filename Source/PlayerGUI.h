@@ -84,6 +84,12 @@ private:
     juce::Label infoLabel;
 
 
+
+    juce::TextButton sleepTimerButton{ "Sleep Timer" };
+    juce::ComboBox sleepTimerCombo;
+    bool sleepTimer = false;
+
+
     juce::Slider timeSlider;
     juce::Slider volumeSlider;
 
