@@ -10,11 +10,34 @@ void PlayerAudio::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
     transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
+void PlayerAudio::setSleep(double minutes)
+{
+    sleepTimer = true;
+    sleepduration = minutes * 60.0; 
+    sleepstart = juce::Time::getCurrentTime().toMilliseconds() / 1000.0;
+}
 
+void PlayerAudio::stopSleep()
+{
+    sleepTimer = false;
+}
+
+double PlayerAudio::getTime() const
+{
+    if (!sleepTimer) return 0.0;
+
+    double currentTime = juce::Time::getCurrentTime().toMilliseconds() / 1000.0;
+    double elapsed = currentTime - sleepstart;
+    return sleepduration - elapsed;
+}
 void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
     transportSource.getNextAudioBlock(bufferToFill);
-
+    if (sleepTimer && getTime() <= 0)
+    {
+        sleepTimer = false;
+        transportSource.stop(); 
+    }
     double currentposition = transportSource.getCurrentPosition();
     double length = transportSource.getLengthInSeconds();
 
