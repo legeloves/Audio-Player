@@ -36,6 +36,12 @@ public:
     void addMark(double time, const juce::String& name = "");
     void visitMark(int pos);
     void deleteAllMarks();
+
+
+   void setSleep(double minutes);
+   void stopSleep();
+   bool isSleepTimerActive() const { return sleepTimer; }
+   double getTime() const;
     std::vector<std::pair<double, juce::String>> getMarks() const;
 
     track currentTrack;
@@ -57,6 +63,9 @@ private:
     juce::AudioTransportSource transportSource;
 
 
+    bool sleepTimer = false;
+    double sleepduration = 0.0;
+    double sleepstart = 0.0;
     juce::File currentFile;
 
 
