@@ -24,6 +24,25 @@ PlayerGUI::PlayerGUI() {
         btn->setColour(juce::TextButton::textColourOffId, textColour);
 
     }
+
+
+
+    
+    sleepTimerButton.addListener(this);
+    addAndMakeVisible(sleepTimerButton);
+    sleepTimerButton.setColour(juce::TextButton::buttonColourId, buttonColour);
+    sleepTimerButton.setColour(juce::TextButton::buttonOnColourId, Green);
+    sleepTimerButton.setColour(juce::TextButton::textColourOnId, textColour);
+    sleepTimerButton.setColour(juce::TextButton::textColourOffId, textColour);
+
+    sleepTimerCombo.addItem("5 minutes", 1);
+    sleepTimerCombo.addItem("15 minutes", 2);
+    sleepTimerCombo.addItem("30 minutes", 3);
+    sleepTimerCombo.addItem("60 minutes", 4);
+    sleepTimerCombo.setSelectedId(0); 
+    addAndMakeVisible(sleepTimerCombo);
+
+
     timeSlider.setRange(0.0, 1.0, 0.0001);
     timeSlider.setValue(0.0);
     timeSlider.addListener(this);
@@ -101,7 +120,8 @@ void PlayerGUI::resized()
     playButton.setBounds(center - 30, height - 85, 60, 70); 
     skipForwardButton.setBounds(center + 40, height - 80, size, size);
     nextButton.setBounds(center + 100, height - 80, size, size);
-
+ sleepTimerButton.setBounds(width - 150, height - 100, 100, 30);
+ sleepTimerCombo.setBounds(width - 150, height - 65, 100, 25);
     
     stopButton.setBounds(center - 160, height - 140, 60, 30);
     restartButton.setBounds(center - 90, height - 140, 60, 30);
@@ -299,6 +319,36 @@ void PlayerGUI::buttonClicked(juce::Button* button)
         playlistAudio.deleteAllMarks();
     }
 
+
+        else if (button == &sleepTimerButton)
+    {
+        if (sleepTimerCombo.getSelectedId() == 0)
+        {
+            
+            playlistAudio.stopSleep();
+            sleepTimer = false;
+            sleepTimerButton.setButtonText("Sleep Timer");
+        }
+        else
+        {
+            
+            double minutes = 0;
+            switch (sleepTimerCombo.getSelectedId())
+            {
+            case 1: minutes = 5; break;
+            case 2: minutes = 15; break;
+            case 3: minutes = 30; break;
+            case 4: minutes = 60; break;
+            }
+
+            playlistAudio.setSleep(minutes);
+            sleepTimer = true;
+            sleepTimerButton.setButtonText("Cancel Timer");
+        }
+        }
+
+}
+
 }
 
 
@@ -432,6 +482,18 @@ void PlayerGUI::timerCallback()
         double p = playlistAudio.getPosition();
         if (p >= loop_B)
             playlistAudio.setPosition(loop_A);
+    }
+
+    
+    if (sleepTimer && playlistAudio.isSleepTimerActive())
+    {
+        double remaining = playlistAudio.getTime();
+        if (remaining > 0)
+        {
+            int mins = (int)(remaining / 60);
+            int secs = (int)remaining % 60;
+            sleepTimerButton.setButtonText("Stop in " + juce::String(mins) + ":" + juce::String(secs).paddedLeft('0', 2));
+        }
     }
 
     repaint();
