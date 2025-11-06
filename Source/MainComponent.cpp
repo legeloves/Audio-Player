@@ -48,11 +48,3 @@ void MainComponent::resized() {
     player1.setBounds(area.removeFromTop(halfHeight));
     player2.setBounds(area);
 }
-
-
-
-
-
-
-
-

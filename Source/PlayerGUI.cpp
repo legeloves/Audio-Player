@@ -3,9 +3,9 @@
 
 PlayerGUI::PlayerGUI() {
     // Add buttons
-    juce::Colour backgroundColour = juce::Colours::white;  
-    juce::Colour buttonColour = juce::Colours::black;      
-    juce::Colour Green = juce::Colour(0xff1db954);   
+    juce::Colour backgroundColour = juce::Colours::white;
+    juce::Colour buttonColour = juce::Colours::black;
+    juce::Colour Green = juce::Colour(0xff1db954);
     juce::Colour textColour = juce::Colours::white;
 
     juce::Colour Pink = juce::Colour(0xfff8b5d0);
@@ -19,7 +19,7 @@ PlayerGUI::PlayerGUI() {
         btn->addListener(this);
         addAndMakeVisible(btn);
         btn->setColour(juce::TextButton::buttonColourId, buttonColour);
-        btn->setColour(juce::TextButton::buttonOnColourId, Green); 
+        btn->setColour(juce::TextButton::buttonOnColourId, Green);
         btn->setColour(juce::TextButton::textColourOnId, textColour);
         btn->setColour(juce::TextButton::textColourOffId, textColour);
 
@@ -27,7 +27,7 @@ PlayerGUI::PlayerGUI() {
 
 
 
-    
+
     sleepTimerButton.addListener(this);
     addAndMakeVisible(sleepTimerButton);
     sleepTimerButton.setColour(juce::TextButton::buttonColourId, buttonColour);
@@ -39,7 +39,7 @@ PlayerGUI::PlayerGUI() {
     sleepTimerCombo.addItem("15 minutes", 2);
     sleepTimerCombo.addItem("30 minutes", 3);
     sleepTimerCombo.addItem("60 minutes", 4);
-    sleepTimerCombo.setSelectedId(0); 
+    sleepTimerCombo.setSelectedId(0);
     addAndMakeVisible(sleepTimerCombo);
 
 
@@ -85,6 +85,23 @@ PlayerGUI::PlayerGUI() {
     volumeSlider.setColour(juce::Slider::backgroundColourId, juce::Colours::lightgrey);
     addAndMakeVisible(volumeSlider);
 
+
+    // speed slider
+    speedSlider.setRange(0.5, 2.0, 0.01);
+    speedSlider.setValue(1.0);
+    speedSlider.addListener(this);
+    speedSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+    speedSlider.setTextBoxStyle(juce::Slider::TextBoxLeft, false, 60, 20);
+
+    speedSlider.setColour(juce::Slider::trackColourId, Green);
+    speedSlider.setColour(juce::Slider::thumbColourId, juce::Colours::black);
+    speedSlider.setColour(juce::Slider::backgroundColourId, juce::Colours::lightgrey);
+    speedSlider.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::black);
+    speedSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colours::white);
+
+    addAndMakeVisible(speedSlider);
+
+
 }
 void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
@@ -114,45 +131,50 @@ void PlayerGUI::resized()
     int size = 50;
     int center = width / 2;
 
-  
+
     previousButton.setBounds(center - 150, height - 80, size, size);
     skipBackwardButton.setBounds(center - 90, height - 80, size, size);
-    playButton.setBounds(center - 30, height - 85, 60, 70); 
+    playButton.setBounds(center - 30, height - 85, 60, 70);
     skipForwardButton.setBounds(center + 40, height - 80, size, size);
     nextButton.setBounds(center + 100, height - 80, size, size);
  sleepTimerButton.setBounds(width - 150, height - 100, 100, 30);
  sleepTimerCombo.setBounds(width - 150, height - 65, 100, 25);
-    
+
     stopButton.setBounds(center - 160, height - 140, 60, 30);
     restartButton.setBounds(center - 90, height - 140, 60, 30);
     loopButton.setBounds(center + 30, height - 140, 60, 30);
     goToStartButton.setBounds(center - 250, height - 140, 80, 30);
     goToEndButton.setBounds(center + 100, height - 140, 80, 30);
 
- 
+
     loadButton.setBounds(20, 20, 100, 30);
     muteButton.setBounds(130, 20, 80, 30);
     unmuteButton.setBounds(220, 20, 80, 30);
     addMarkButton.setBounds(width - 220, 20, 100, 35);
     clearMarksButton.setBounds(width - 110, 20, 90, 35);
 
-    
+
     A_Button.setBounds(20, height - 50, 40, 30);
     B_Button.setBounds(70, height - 50, 40, 30);
     clear_AB_Button.setBounds(120, height - 50, 80, 30);
 
-    int timelineY = 120; 
-    int timelineWidth = width - 160; 
+    int timelineY = 120;
+    int timelineWidth = width - 160;
 
-    currentTimeLabel.setBounds(center -250, timelineY - 25, 60, 20); 
-    timeSlider.setBounds(center -180, timelineY, 360, 25); 
-    totalTimeLabel.setBounds(center+190, timelineY - 25, 60, 20); 
+    currentTimeLabel.setBounds(center -250, timelineY - 25, 60, 20);
+    timeSlider.setBounds(center -180, timelineY, 360, 25);
+    totalTimeLabel.setBounds(center+190, timelineY - 25, 60, 20);
 
-    
+
     infoLabel.setBounds(center - 200, 10, 400, 35);
 
-   
+
     volumeSlider.setBounds(width - 50, 80, 30, height - 200);
+
+
+    //speed slider
+    speedSlider.setBounds(center - 180, timelineY + 40, 360, 25);
+
 }
 
 
@@ -180,7 +202,7 @@ void PlayerGUI::buttonClicked(juce::Button* button)
                 {
                     playlistAudio.loadFile(file);
 
-                    
+
                     playlistAudio.addToPlaylist(file);
                     updateTrackInfo();
 
@@ -324,14 +346,14 @@ void PlayerGUI::buttonClicked(juce::Button* button)
     {
         if (sleepTimerCombo.getSelectedId() == 0)
         {
-            
+
             playlistAudio.stopSleep();
             sleepTimer = false;
             sleepTimerButton.setButtonText("Sleep Timer");
         }
         else
         {
-            
+
             double minutes = 0;
             switch (sleepTimerCombo.getSelectedId())
             {
@@ -349,7 +371,7 @@ void PlayerGUI::buttonClicked(juce::Button* button)
 
 }
 
-}
+
 
 
 void PlayerGUI::sliderValueChanged(juce::Slider* slider)
@@ -371,6 +393,12 @@ void PlayerGUI::sliderValueChanged(juce::Slider* slider)
             }
         }
     }
+
+    else if (slider == &speedSlider)
+    {
+        playlistAudio.setSpeed(speedSlider.getValue());
+    }
+
 }
 
 
@@ -454,6 +482,8 @@ juce::String PlayerGUI::formatTime(double seconds)
 
     return juce::String::formatted("%d:%02d", minutes, secs);
 }
+
+
 void PlayerGUI::timerCallback()
 {
     double totalTime = playlistAudio.getLength();
@@ -484,7 +514,7 @@ void PlayerGUI::timerCallback()
             playlistAudio.setPosition(loop_A);
     }
 
-    
+
     if (sleepTimer && playlistAudio.isSleepTimerActive())
     {
         double remaining = playlistAudio.getTime();
@@ -503,4 +533,3 @@ void PlayerGUI::timerCallback()
 
 
 PlayerGUI::~PlayerGUI() {}
-

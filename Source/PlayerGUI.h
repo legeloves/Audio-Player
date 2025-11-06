@@ -92,10 +92,11 @@ private:
 
     juce::Slider timeSlider;
     juce::Slider volumeSlider;
+    juce::Slider speedSlider;
+
 
 
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerGUI)
 };
-

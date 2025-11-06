@@ -12,6 +12,10 @@ protected:
         int min = 0;
         int sec = 0;
     };
+
+    std::unique_ptr<juce::ResamplingAudioSource> resampler;
+    double currentSampleRate = 0.0;
+
 public:
     PlayerAudio();
     ~PlayerAudio() override;
@@ -38,19 +42,20 @@ public:
     void deleteAllMarks();
 
 
-   void setSleep(double minutes);
-   void stopSleep();
-   bool isSleepTimerActive() const { return sleepTimer; }
-   double getTime() const;
+    void setSleep(double minutes);
+    void stopSleep();
+    bool isSleepTimerActive() const { return sleepTimer; }
+    double getTime() const;
     std::vector<std::pair<double, juce::String>> getMarks() const;
 
     track currentTrack;
+
     track getTrackInfo() const
     {
         return currentTrack;
     };
 
-
+    void setSpeed(double speed);
 
 
 
@@ -73,4 +78,3 @@ private:
 
 
 };
-
