@@ -8,7 +8,8 @@
 class PlayerGUI : public juce::Component,
     public juce::Button::Listener,
     public juce::Slider::Listener,
-    public juce::Timer
+    public juce::Timer,
+    public juce::ComboBox::Listener
 {
 public:
     PlayerGUI();
@@ -27,7 +28,10 @@ public:
     void buttonClicked(juce::Button* button) override;
     void sliderValueChanged(juce::Slider* slider) override;
 
+    void comboBoxChanged(juce::ComboBox* comboBox) override;
+
     void updateTrackInfo();
+    void updateMarksComboBox();
 
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
@@ -87,6 +91,8 @@ private:
 
     juce::TextButton sleepTimerButton{ "Sleep Timer" };
     juce::ComboBox sleepTimerCombo;
+
+    juce::ComboBox marksComboBox;
     bool sleepTimer = false;
 
 
