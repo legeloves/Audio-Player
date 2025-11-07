@@ -12,7 +12,9 @@ public:
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
     void releaseResources() override;
     void resized() override;
-
+    void loadLastSession();
+    void saveLastSession();
+    
 private:
     void showPlayer2();
     void hidePlayer2();
@@ -21,6 +23,9 @@ private:
     PlayerGUI player2;
     juce::MixerAudioSource mixer;
     juce::TextButton player2Button;
+
+
+    juce::ApplicationProperties appProperties;
 
    bool player2Visibility = false;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
