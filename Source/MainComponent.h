@@ -2,7 +2,7 @@
 #include <JuceHeader.h>
 #include "PlayerGUI.h"
 
-class MainComponent : public juce::AudioAppComponent
+class MainComponent : public juce::AudioAppComponent , public juce::Button::Listener
 {
 public:
     MainComponent();
@@ -14,8 +14,14 @@ public:
     void resized() override;
 
 private:
+    void showPlayer2();
+    void hidePlayer2();
+    void buttonClicked(juce::Button* button) override;
     PlayerGUI player1;
     PlayerGUI player2;
     juce::MixerAudioSource mixer;
+    juce::TextButton player2Button;
+
+   bool player2Visibility = false;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };
