@@ -23,6 +23,14 @@ PlayerGUI::PlayerGUI() {
         btn->setColour(juce::TextButton::textColourOffId, textColour);
     }
 
+
+    marksComboBox.addListener(this);
+    marksComboBox.setColour(juce::ComboBox::backgroundColourId, buttonColour);
+    marksComboBox.setColour(juce::ComboBox::textColourId, textColour);
+    marksComboBox.setColour(juce::ComboBox::arrowColourId, textColour);
+    marksComboBox.setTextWhenNothingSelected("Select Mark");
+    addAndMakeVisible(marksComboBox);
+
     sleepTimerButton.addListener(this);
     addAndMakeVisible(sleepTimerButton);
     sleepTimerButton.setColour(juce::TextButton::buttonColourId, buttonColour);
@@ -125,6 +133,9 @@ void PlayerGUI::resized()
     playButton.setBounds(center - 30, height - 85, 60, 70);
     skipForwardButton.setBounds(center + 40, height - 80, size, size);
     nextButton.setBounds(center + 100, height - 80, size, size);
+
+
+    marksComboBox.setBounds(width - 220, 65, 200, 25);
 
     sleepTimerButton.setBounds(width - 150, height - 100, 100, 30);
     sleepTimerCombo.setBounds(width - 150, height - 65, 100, 25);
@@ -288,12 +299,15 @@ void PlayerGUI::buttonClicked(juce::Button* button)
     }
     else if (button == &addMarkButton)
     {
+
         double time = playlistAudio.getPosition();
         playlistAudio.addMark(time);
+        updateMarksComboBox();
     }
     else if (button == &clearMarksButton)
     {
         playlistAudio.deleteAllMarks();
+        marksComboBox.clear();
     }
     else if (button == &sleepTimerButton)
     {
@@ -320,6 +334,39 @@ void PlayerGUI::buttonClicked(juce::Button* button)
         }
     }
 }
+
+
+void PlayerGUI::comboBoxChanged(juce::ComboBox* comboBox)
+{
+    if (comboBox == &marksComboBox)
+    {
+        int selectedId = marksComboBox.getSelectedId();
+        if (selectedId > 0)
+        {
+            
+            playlistAudio.visitMark(selectedId - 1);
+        }
+    }
+}
+
+
+void PlayerGUI::updateMarksComboBox()
+{
+    marksComboBox.clear();
+
+    auto marks = playlistAudio.getMarks();
+    for (int i = 0; i < marks.size(); ++i)
+    {
+        const auto& mark = marks[i];
+        juce::String displayText = juce::String(i + 1) + ": " + formatTime(mark.first);
+        if (mark.second.isNotEmpty())
+        {
+            displayText += " - " + mark.second;
+        }
+        marksComboBox.addItem(displayText, i + 1);  
+    }
+}
+
 
 void PlayerGUI::sliderValueChanged(juce::Slider* slider)
 {
@@ -454,7 +501,13 @@ void PlayerGUI::timerCallback()
             sleepTimerButton.setButtonText("Stop in " + juce::String(mins) + ":" + juce::String(secs).paddedLeft('0', 2));
         }
     }
-
+    static size_t lastMarkElement = 0;
+    auto currentMarks = playlistAudio.getMarks();
+    if (currentMarks.size() != lastMarkElement)
+    {
+        updateMarksComboBox();
+        lastMarkElement = currentMarks.size();
+    }
     repaint();
 }
 
